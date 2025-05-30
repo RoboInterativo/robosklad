@@ -7,14 +7,14 @@ Base = declarative_base()
 class Employee(Base):
     __tablename__ = 'employees'
     id = Column(Integer, primary_key=True)
-    full_name = Column(String(100), nullable=False)
-    birth_date = Column(DateTime)
-    passport_data = Column(String(50))
-    bank_details = Column(String(100))
-    has_family = Column(Boolean)
-    health_status = Column(String(200))
-    contact_phone = Column(String(20))
-    email = Column(String(50))
+    full_name = Column(String(100), nullable=False,comment="ФИО сотрудника")
+    birth_date = Column(DateTime,comment="Дата рождения")
+    passport_data = Column(String(50),comment="Паспортные данные")
+    bank_details = Column(String(100), comment="Банковские данные")
+    has_family = Column(Boolean, comment="ФИО сотрудника")
+    health_status = Column(String(200), comment="ФИО сотрудника")
+    contact_phone = Column(String(20),comment="ФИО сотрудника")
+    email = Column(String(50), comment="ФИО сотрудника")
 
 
 class MaterialTypeImport(Base):
