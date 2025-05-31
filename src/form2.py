@@ -1,4 +1,43 @@
-from tkinter import Tk, Frame, Label, Canvas, Scrollbar, messagebox
+from tkinter import Tk,Entry,Button, NW,Frame, Label, Canvas, Scrollbar, messagebox,Toplevel
+from db import *
+from db import Session, ProductTypeImport, Employee
+def open_modal_window():
+    form={}
+    # languages = ["Python", "C#", "Java", "JavaScript"]
+    # combobox = ttk.Combobox(values=languages)
+    # combobox.pack(anchor=NW, padx=6, pady=6)
+    def add_record():
+        data={}
+        for column in columns:
+            field={}
+            if column.name !='id':
+                data[ column.name] = form[column.name]['entry'].get()
+        messagebox.showinfo(
+            str(data)
+        )
+    modal = Toplevel()
+    modal.title("Модальное окно")
+    modal.geometry("800x600")
+    modal.grab_set()
+    columns = Employee.__table__.columns
+
+    for column in columns:
+        field={}
+        if column.name !='id':
+            desk= column.comment  if column.comment else  column.comment
+            field['label']= Label(modal, text=desk)
+            field['label'].pack(anchor=NW, padx=8 )
+            field['entry']= Entry(modal,width=120)
+            field['entry'].pack(anchor=NW, padx=8)
+            form[column.name]=field
+
+    btn_close = Button(modal, text="Добавить запись", command=add_record)
+    btn_close.pack(anchor=NW, padx=8, pady=8)
+
+    btn_close = Button(modal, text="Выход", command=modal.destroy)
+    btn_close.pack(anchor=NW, padx=8, pady=8)
+
+
 
 def show_partners(root, partners):
     """Упрощенный вариант отображения карточек партнеров с прокруткой"""

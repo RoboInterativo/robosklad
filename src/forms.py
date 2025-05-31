@@ -1,3 +1,4 @@
+from tkinter import Toplevel, messagebox
 def open_modal_window():
     modal = Toplevel()
     modal.title("Модальное окно")
@@ -17,6 +18,19 @@ def open_modal_window():
 
     btn_close = Button(modal, text="OK", command=modal.destroy)
     btn_close.pack(anchor=NW, padx=8, pady=8)
+    data={}
+    for column in columns:
+        field={}
+        if column.name !='id':
+            desk= column.comment  if column.comment else  column.comment
+            field['label']= Label(modal, text=desk)
+            field['label'].pack(anchor=NW )
+            field['entry']= Entry(modal)
+            field['entry'].pack(anchor=NW)
+            data[column.name]=field
+    messagebox.showinfo(
+        str(data)
+    )
 
 
 root.title("Система управления партнёрами")
