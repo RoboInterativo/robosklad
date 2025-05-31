@@ -1,6 +1,7 @@
 from tkinter import Tk,Entry,Button, NW,Frame, Label, Canvas, Scrollbar, messagebox,Toplevel
 from db import *
 from db import Session, ProductTypeImport, Employee
+
 def open_modal_window():
     form={}
     # languages = ["Python", "C#", "Java", "JavaScript"]
@@ -24,7 +25,7 @@ def open_modal_window():
     for column in columns:
         field={}
         if column.name !='id':
-            desk= column.comment  if column.comment else  column.comment
+            desk= column.comment  if column.name else  column.comment
             field['label']= Label(modal, text=desk)
             field['label'].pack(anchor=NW, padx=8 )
             field['entry']= Entry(modal,width=120)
