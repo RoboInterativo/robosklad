@@ -28,7 +28,7 @@ def open_modal_window():
     modal.geometry("800x600")
     modal.grab_set()
 
-    columns = ProductsImport.__table__.columns
+    columns = PartnersImport.__table__.columns
 
     for column in columns:
         if column.name != 'id':
