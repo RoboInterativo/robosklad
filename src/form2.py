@@ -5,6 +5,107 @@ from db import Session, ProductTypeImport, Employee
 from tkinter import Toplevel, Label, Entry, Button, NW, messagebox
 from tkinter import ttk
 
+from db import Session, PartnersImport
+from sqlalchemy.exc import SQLAlchemyError
+
+def open_modal_window2(table, record_id=None):
+    form = {}
+    session = Session()  # Создаем сессию для работы с БД
+
+    def save_record():
+        data = {}
+        for column in columns:
+            if column.name != 'id':
+                # Для Combobox получаем ID из related_objects
+                if isinstance(form[column.name]['widget'], ttk.Combobox):
+                    selected_value = form[column.name]['widget'].get()
+                    data[column.name] = form[column.name]['widget'].related_objects.get(selected_value, None)
+                else:
+                    data[column.name] = form[column.name]['widget'].get()
+
+        try:
+            if record_id:  # Режим редактирования
+                # Загружаем существующую запись
+                record = session.query(table).filter_by(id=record_id).first()
+                if not record:
+                    messagebox.showerror("Ошибка", f"Запись с ID {record_id} не найдена")
+                    return
+
+                # Обновляем поля записи
+                for key, value in data.items():
+                    setattr(record, key, value if value != '' else None)
+                messagebox.showinfo("Успех", "Запись успешно обновлена")
+            else:  # Режим добавления
+                # Создаем новую запись
+                record = table(**data)
+                session.add(record)
+                messagebox.showinfo("Успех", "Запись успешно добавлена")
+
+            session.commit()
+            modal.destroy()  # Закрываем окно после сохранения
+        except SQLAlchemyError as e:
+            session.rollback()
+            messagebox.showerror("Ошибка", f"Не удалось сохранить запись: {e}")
+
+    modal = Toplevel()
+    modal.title("Редактирование партнера" if record_id else "Добавление партнера")
+    modal.geometry("800x600")
+    modal.grab_set()
+
+    columns = table.__table__.columns
+    record = None
+    if record_id:
+        # Загружаем запись для редактирования
+        record = session.query(table).filter_by(id=record_id).first()
+        if not record:
+            messagebox.showerror("Ошибка", f"Запись с ID {record_id} не найдена")
+            modal.destroy()
+            return
+
+    for column in columns:
+        if column.name != 'id':
+            # Создаем метку
+            label_text = column.comment if column.comment else column.name
+            Label(modal, text=label_text).pack(anchor=NW, padx=8)
+
+            # Проверяем, является ли поле ForeignKey
+            if column.foreign_keys:
+                # Получаем связанную модель
+                fk = list(column.foreign_keys)[0]
+                related_table = fk.column.table
+                related_model = next(m for m in Base._decl_class_registry.values() if hasattr(m, '__table__') and m.__table__ == related_table)
+
+                # Получаем все записи из связанной таблицы
+                related_objects = session.query(related_model).all()
+
+                # Создаем Combobox с значениями
+                cb = ttk.Combobox(modal, width=117)
+                display_values = [str(obj) for obj in related_objects]
+                cb['values'] = display_values
+                cb.related_objects = {str(obj): obj.id for obj in related_objects}
+
+                # Заполняем Combobox текущим значением (для редактирования)
+                if record and getattr(record, column.name):
+                    related_obj = session.query(related_model).filter_by(id=getattr(record, column.name)).first()
+                    if related_obj:
+                        cb.set(str(related_obj))
+
+                cb.pack(anchor=NW, padx=8)
+                form[column.name] = {'widget': cb}
+            else:
+                # Обычное текстовое поле для не-FK полей
+                entry = Entry(modal, width=120)
+                # Заполняем поле текущим значением (для редактирования)
+                if record and getattr(record, column.name) is not None:
+                    entry.insert(0, str(getattr(record, column.name)))
+                entry.pack(anchor=NW, padx=8)
+                form[column.name] = {'widget': entry}
+
+    Button(modal, text="Сохранить" if record_id else "Добавить запись", command=save_record).pack(anchor=NW, padx=8, pady=8)
+    Button(modal, text="Выход", command=modal.destroy).pack(anchor=NW, padx=8, pady=8)
+
+    # Закрываем сессию при закрытии окна
+    modal.protocol("WM_DELETE_WINDOW", lambda: [session.close(), modal.destroy()])
 
 def open_modal_window():
     form = {}
@@ -128,12 +229,14 @@ def show_partners(root, partners):
     # Функция обработки клика по карточке
     def on_card_click(partner_data):
         # Здесь можно выполнить любые действия с данными партнера
-        messagebox.showinfo(
-            "Выбран партнер",
-            f"{partner_data['name']}\n"
-            f"Телефон: {partner_data['phone']}\n"
-            f"Рейтинг: {partner_data['rating']}%"
-        )
+        # messagebox.showinfo(
+        #     "Выбран партнер",
+        #     f"{partner_data['id']}\n"
+        #     f"{partner_data['name']}\n"
+        #     f"Телефон: {partner_data['phone']}\n"
+        #     f"Рейтинг: {partner_data['rating']}%"
+        # )
+        open_modal_window2(PartnersImport, record_id=partner_data["id"])
         # Или например открыть подробную информацию:
         # show_partner_details(partner_data)
     # Создаем карточки партнеров

@@ -13,6 +13,7 @@ def get_partners_data(session):
         # Преобразуем данные в список словарей
         partners_data = [
             {
+                "id": partner.id,
                 "type": partner.partner_type or "",
                 "name": partner.company_name,
                 "position": partner.director_name or "",
