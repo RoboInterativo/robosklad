@@ -172,66 +172,67 @@ def open_modal_window2(table, record_id=None):
 
     # Закрываем сессию при закрытии окна
     modal.protocol("WM_DELETE_WINDOW", lambda: [session.close(), modal.destroy()])
+#
+# def open_modal_window(table):
+#     form = {}
+#     session = Session()  # Создаем сессию для работы с БД
+#
+#     def add_record():
+#         data = {}
+#         for column in columns:
+#             if column.name != 'id':
+#                 # Для Combobox берем значение, а не текст
+#                 if isinstance(form[column.name]['widget'], ttk.Combobox):
+#                     data[column.name] = form[column.name]['widget'].get()
+#                 else:
+#                     data[column.name] = form[column.name]['widget'].get()
+#
+#         messagebox.showinfo("Данные", str(data))
+#         # Здесь можно добавить сохранение в БД
+#
+#     modal = Toplevel()
+#     modal.title("Модальное окно")
+#     modal.geometry("800x600")
+#     modal.grab_set()
+#
+#     columns = table.__table__.columns
+#
+#     for column in columns:
+#         if column.name != 'id':
+#             # Создаем метку
+#             label_text = column.comment if column.comment else column.name
+#             Label(modal, text=label_text).pack(anchor=NW, padx=8)
+#
+#             # Проверяем, является ли поле ForeignKey
+#             if column.foreign_keys:
+#                 # Получаем связанную модель
+#                 fk = list(column.foreign_keys)[0]
+#                 related_model = fk.column.table
+#
+#                 # Получаем все записи из связанной таблицы
+#                 related_objects = session.query(related_model).all()
+#
+#                 # Создаем Combobox с значениями
+#                 cb = ttk.Combobox(modal, width=117)
+#
+#                 # Формируем список отображаемых значений
+#                 display_values = [str(obj) for obj in related_objects]
+#                 cb['values'] = display_values
+#
+#                 # Сохраняем оригинальные объекты для сопоставления
+#                 cb.related_objects = {str(obj): obj.id for obj in related_objects}
+#
+#                 cb.pack(anchor=NW, padx=8)
+#                 form[column.name] = {'widget': cb}
+#             else:
+#                 # Обычное текстовое поле для не-FK полей
+#                 entry = Entry(modal, width=120)
+#                 entry.pack(anchor=NW, padx=8)
+#                 form[column.name] = {'widget': entry}
+#
+#     Button(modal, text="Добавить запись", command=add_record).pack(anchor=NW, padx=8, pady=8)
+#     Button(modal, text="Выход", command=modal.destroy).pack(anchor=NW, padx=8, pady=8)
 
-def open_modal_window(table):
-    form = {}
-    session = Session()  # Создаем сессию для работы с БД
-
-    def add_record():
-        data = {}
-        for column in columns:
-            if column.name != 'id':
-                # Для Combobox берем значение, а не текст
-                if isinstance(form[column.name]['widget'], ttk.Combobox):
-                    data[column.name] = form[column.name]['widget'].get()
-                else:
-                    data[column.name] = form[column.name]['widget'].get()
-
-        messagebox.showinfo("Данные", str(data))
-        # Здесь можно добавить сохранение в БД
-
-    modal = Toplevel()
-    modal.title("Модальное окно")
-    modal.geometry("800x600")
-    modal.grab_set()
-
-    columns = table.__table__.columns
-
-    for column in columns:
-        if column.name != 'id':
-            # Создаем метку
-            label_text = column.comment if column.comment else column.name
-            Label(modal, text=label_text).pack(anchor=NW, padx=8)
-
-            # Проверяем, является ли поле ForeignKey
-            if column.foreign_keys:
-                # Получаем связанную модель
-                fk = list(column.foreign_keys)[0]
-                related_model = fk.column.table
-
-                # Получаем все записи из связанной таблицы
-                related_objects = session.query(related_model).all()
-
-                # Создаем Combobox с значениями
-                cb = ttk.Combobox(modal, width=117)
-
-                # Формируем список отображаемых значений
-                display_values = [str(obj) for obj in related_objects]
-                cb['values'] = display_values
-
-                # Сохраняем оригинальные объекты для сопоставления
-                cb.related_objects = {str(obj): obj.id for obj in related_objects}
-
-                cb.pack(anchor=NW, padx=8)
-                form[column.name] = {'widget': cb}
-            else:
-                # Обычное текстовое поле для не-FK полей
-                entry = Entry(modal, width=120)
-                entry.pack(anchor=NW, padx=8)
-                form[column.name] = {'widget': entry}
-
-    Button(modal, text="Добавить запись", command=add_record).pack(anchor=NW, padx=8, pady=8)
-    Button(modal, text="Выход", command=modal.destroy).pack(anchor=NW, padx=8, pady=8)
 # def open_modal_window():
 #     form={}
 #     # languages = ["Python", "C#", "Java", "JavaScript"]

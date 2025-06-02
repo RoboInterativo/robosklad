@@ -18,6 +18,9 @@ def create_main_menu(root):
     settings_menu.add_command(label="ProductsImport", command=lambda: open_modal_window2(ProductsImport))
     settings_menu.add_command(label="ProductsImport list", command=lambda: open_table_view_window(ProductsImport))
 
+    settings_menu.add_command(label="PartnerProductsImport", command=lambda: open_modal_window2(PartnerProductsImport))
+    settings_menu.add_command(label="PartnerProductsImport list", command=lambda: open_table_view_window(PartnerProductsImport))
+
 
     menubar.add_cascade(label="Партнеры", menu=partner_menu)
     menubar.add_cascade(label="Настройки", menu=settings_menu)

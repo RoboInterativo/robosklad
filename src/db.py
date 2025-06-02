@@ -38,6 +38,7 @@ class PartnersImport(Base):
     logo_path = Column(String(200))
     rating = Column(Integer, CheckConstraint('rating >= 0'))  # Рейтинг неотрицательный
     partner_products = relationship("PartnerProductsImport", back_populates="partner")
+
 class ProductTypeImport(Base):
     __tablename__ = 'product_type_import'
     id = Column(Integer, primary_key=True)
