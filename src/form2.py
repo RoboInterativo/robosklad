@@ -1,4 +1,5 @@
-from tkinter import Tk,Entry,Button, NW,Frame, Label, Canvas, Scrollbar, messagebox,Toplevel
+from tkinter import *
+#Tk,Entry,BOTH,Button, NW,Frame, Label, Canvas, Scrollbar, messagebox,Toplevel
 from db import *
 from db import Session, ProductTypeImport, Employee
 
@@ -7,6 +8,71 @@ from tkinter import ttk
 
 from db import Session, PartnersImport
 from sqlalchemy.exc import SQLAlchemyError
+
+
+def open_table_view_window(table):
+    """Открывает модальное окно со списком всех записей из указанной таблицы"""
+    session = Session()  # Создаем сессию для работы с БД
+
+    modal = Toplevel()
+    modal.title(f"Список записей: {table.__tablename__}")
+    modal.geometry("800x600")
+    modal.grab_set()
+
+    # Создаем фрейм для таблицы
+    frame = Frame(modal)
+    frame.pack(pady=10, padx=10, fill=BOTH, expand=True)
+
+    # Получаем столбцы таблицы
+    columns = table.__table__.columns
+    column_names = [column.name for column in columns]
+    column_headers = [column.comment if column.comment else column.name for column in columns]
+
+    # Создаем Treeview для отображения данных
+    tree = ttk.Treeview(frame, columns=column_names, show="headings")
+
+    # Устанавливаем заголовки столбцов
+    for name, header in zip(column_names, column_headers):
+        tree.heading(name, text=header)
+        tree.column(name, width=120, anchor=CENTER)
+
+    # Добавляем полосу прокрутки
+    scrollbar = ttk.Scrollbar(frame, orient=VERTICAL, command=tree.yview)
+    tree.configure(yscroll=scrollbar.set)
+    scrollbar.pack(side=RIGHT, fill=Y)
+    tree.pack(fill=BOTH, expand=True)
+
+    try:
+        # Загружаем все записи из таблицы
+        records = session.query(table).all()
+
+        for record in records:
+            # Формируем список значений для каждой записи
+            values = []
+            for column in columns:
+                value = getattr(record, column.name)
+                if column.foreign_keys:
+                    # Для внешних ключей получаем строковое представление связанной записи
+                    fk = list(column.foreign_keys)[0]
+                    related_table = fk.column.table
+                    related_model = next(m for m in table.__base__._decl_class_registry.values() if hasattr(m, '__table__') and m.__table__ == related_table)
+                    related_obj = session.query(related_model).filter_by(id=value).first()
+                    values.append(str(related_obj) if related_obj else "")
+                else:
+                    values.append(str(value) if value is not None else "")
+            tree.insert("", END, values=values)
+
+        if not records:
+            messagebox.showinfo("Информация", f"Таблица {table.__tablename__} пуста")
+
+    except SQLAlchemyError as e:
+        messagebox.showerror("Ошибка", f"Не удалось загрузить данные: {e}")
+    finally:
+        # Закрываем сессию при закрытии окна
+        modal.protocol("WM_DELETE_WINDOW", lambda: [session.close(), modal.destroy()])
+
+    # Кнопка выхода
+    Button(modal, text="Выход", command=lambda: [session.close(), modal.destroy()]).pack(anchor=NW, padx=8, pady=8)
 
 def open_modal_window2(table, record_id=None):
     form = {}
@@ -107,7 +173,7 @@ def open_modal_window2(table, record_id=None):
     # Закрываем сессию при закрытии окна
     modal.protocol("WM_DELETE_WINDOW", lambda: [session.close(), modal.destroy()])
 
-def open_modal_window():
+def open_modal_window(table):
     form = {}
     session = Session()  # Создаем сессию для работы с БД
 
@@ -129,7 +195,7 @@ def open_modal_window():
     modal.geometry("800x600")
     modal.grab_set()
 
-    columns = PartnersImport.__table__.columns
+    columns = table.__table__.columns
 
     for column in columns:
         if column.name != 'id':
