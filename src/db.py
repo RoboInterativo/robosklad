@@ -65,7 +65,7 @@ class ProductsImport(Base):
 class PartnerProductsImport(Base):
     __tablename__ = 'partner_products_import'
     id = Column(Integer, primary_key=True)
-    product_id = Column(Integer, ForeignKey('products_import.id'), nullable=False)
+    product_id  = Column(Integer, ForeignKey('products_import.id'), nullable=False)
     partner_id = Column(Integer, ForeignKey('partners_import.id'), nullable=False)
     quantity = Column(Integer, nullable=False)
     sale_date = Column(Date, nullable=False)
