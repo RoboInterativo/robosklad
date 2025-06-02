@@ -40,7 +40,8 @@ class PartnersImport(Base):
     logo_path = Column(String(200))
     rating = Column(Integer, CheckConstraint('rating >= 0'))
     partner_products = relationship("PartnerProductsImport", back_populates="partner")
-
+    def __str__(self):
+        return f"{self.partner_type} {self.company_name}" or f"Type {self.id}"
 
 
 class ProductTypeImport(Base):
@@ -64,7 +65,9 @@ class ProductsImport(Base):
     material_type_id = Column(Integer, ForeignKey('material_type_import.id'), comment="Тип материала")
     material_type = relationship("MaterialTypeImport", back_populates="products")
     partner_products = relationship("PartnerProductsImport", back_populates="product")
-
+    def __str__(self):
+        return self.name or f"Type {self.id}"
+# Updated PartnerProductsImport model
 class PartnerProductsImport(Base):
     __tablename__ = 'partner_products_import'
     id = Column(Integer, primary_key=True)

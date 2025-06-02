@@ -8,9 +8,7 @@ from tkinter import ttk
 
 # from db import *
 #import Session, PartnersImport
-
 from sqlalchemy.exc import SQLAlchemyError
-from datetime import datetime
 
 
 from tkinter import messagebox, ttk
@@ -66,9 +64,6 @@ def open_table_view_window(table):
     related_model_map = {
         'product_type_import': ProductTypeImport,
         'material_type_import': MaterialTypeImport,
-        'partners_import': PartnersImport,
-        'products_import': ProductsImport,
-
         # Добавьте другие таблицы и модели, если есть дополнительные ForeignKey
     }
 
@@ -130,15 +125,7 @@ def open_modal_window2(table, record_id=None, root=None):
                     print(f"Column: {column.name}, Selected Value: {selected_value}, ID: {value}")  # Debug
                 else:
                     value = form[column.name]['widget'].get()
-                    if column.name == 'sale_date' and value:  # Специальная обработка даты
-                        try:
-                            # Ожидаем формат 'дд.мм.гггг'
-                            data[column.name] = datetime.strptime(value, '%d.%m.%Y').date()
-                        except ValueError:
-                            messagebox.showerror("Ошибка", f"Неверный формат даты в поле {column.comment or column.name}. Используйте формат дд.мм.гггг (например, 23.03.2023).")
-                            return
-                    else:
-                        data[column.name] = value if value != '' else None
+                    data[column.name] = value if value != '' else None
                     print(f"Column: {column.name}, Value: {value}")  # Debug
 
         # Проверка обязательных полей
