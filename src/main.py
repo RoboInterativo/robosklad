@@ -1,42 +1,54 @@
 from tkinter import *
 from tkinter import messagebox, ttk
-from db import *
-from db import Session, ProductTypeImport, Employee
+from db import Session, PartnersImport
 from datetime import datetime
 import re
-from  menu import *
+from menu import create_main_menu
 from form2 import *
 
-
-
+def get_partners_data(session):
+    try:
+        # Запрос всех партнеров из таблицы PartnersImport
+        partners = session.query(PartnersImport).all()
+        # Преобразуем данные в список словарей
+        partners_data = [
+            {
+                "type": partner.partner_type or "",
+                "name": partner.company_name,
+                "position": partner.director_name or "",
+                "phone": partner.phone or "",
+                "rating": partner.rating or 0
+            }
+            for partner in partners
+        ]
+        return partners_data
+    except Exception as e:
+        messagebox.showerror("Ошибка", f"Не удалось загрузить данные партнеров: {e}")
+        return []
 
 def main():
     root = Tk()
     root.title("Система управления партнёрами")
     root.geometry("800x600")
 
+    # Создаем сессию для работы с базой данных
+    session = Session()
+
     # Создаем и инициализируем меню
     create_main_menu(root)
-    # Пример данных партнеров
-    partners_data = [
-        {
-            "type": "Тип 1",
-            "name": "Наименование партнера",
-            "position": "Директор",
-            "phone": "+7 223 322 22 32",
-            "rating": 10
-        },
-        {
-            "type": "Тип 2",
-            "name": "Другой партнер",
-            "position": "Менеджер",
-            "phone": "+7 111 222 33 44",
-            "rating": 8
-        },
-        # Добавьте больше партнеров по аналогии
-    ]
 
+    # Получаем данные партнеров из базы
+    partners_data = get_partners_data(session)
+
+    # Отображаем список партнеров
     show_partners(root, partners_data)
+
+    # Закрываем сессию при закрытии приложения
+    def on_closing():
+        session.close()
+        root.destroy()
+
+    root.protocol("WM_DELETE_WINDOW", on_closing)
     root.mainloop()
 
 if __name__ == '__main__':
